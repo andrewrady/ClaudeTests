@@ -31,9 +31,34 @@ app.MapGet("/weatherforecast", () =>
 })
 .WithName("GetWeatherForecast");
 
+var tickers = new[]
+{
+    "AAPL", "GOOGL", "MSFT", "AMZN", "TSLA", "META", "NVDA", "NFLX", "JPM", "V"
+};
+
+app.MapGet("/stockquotes", () =>
+{
+    var quotes = Enumerable.Range(0, 5).Select(index =>
+        new StockQuote
+        (
+            tickers[Random.Shared.Next(tickers.Length)],
+            Math.Round(Random.Shared.NextDouble() * 500 + 50, 2),
+            Math.Round((Random.Shared.NextDouble() - 0.5) * 10, 2),
+            DateTime.Now
+        ))
+        .ToArray();
+    return quotes;
+})
+.WithName("GetStockQuotes");
+
 app.Run();
 
 record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
 {
     public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
+}
+
+record StockQuote(string Ticker, double Price, double Change, DateTime Timestamp)
+{
+    public double ChangePercent => Math.Round(Change / Price * 100, 2);
 }
